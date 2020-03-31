@@ -139,7 +139,8 @@ void MainWindow::lineReturnPressed()
 
     if(batNameListSizeIsChanging)
     {
-        t->sendData(str+QString("\r\n"));
+        sendQStringList(str.split(";"));
+        //t->sendData(str+QString("\r\n"));
     }else
     {
         for(int i=0;i<batNameList.size();i++)
@@ -150,18 +151,7 @@ void MainWindow::lineReturnPressed()
                 QString cmdList = batNameList[i].cmdList;
                 find_bat_name = true;
                 QStringList cmdAll = cmdList.split(";");
-                for(int j=0;j<cmdAll.size();j++)
-                {
-                    QString tempCMD = cmdAll[j];
-
-                    t->sendData(tempCMD+QString("\r\n"));
-
-                    for(int mm=0;mm<10000;mm++)
-                    {
-                        int sleepp =0;
-                        sleepp = 9;
-                    }
-                }
+                sendQStringList(cmdAll);
                 break;
             }
         }
@@ -169,7 +159,8 @@ void MainWindow::lineReturnPressed()
 
         if(!find_bat_name)
         {
-            t->sendData(str+QString("\r\n"));
+            sendQStringList(str.split(";"));
+            //t->sendData(str+QString("\r\n"));
         }
     }
 
@@ -192,5 +183,22 @@ void MainWindow::updateBatNameList(QList<Bat_Name> editList)
     this->batNameList = editList;
 
     batNameListSizeIsChanging = false;
+
+}
+
+void  MainWindow::sendQStringList(QStringList list)
+{
+    for(int i=0;i<list.size();i++)
+    {
+        QString tempCMD = list[i];
+
+        t->sendData(tempCMD+QString("\r\n"));
+
+        for(int mm=0;mm<10000;mm++)
+        {
+            int sleepp =0;
+            sleepp = 9;
+        }
+    }
 
 }
