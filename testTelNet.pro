@@ -20,9 +20,14 @@ win32:LIBS += -lWs2_32
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    qttelnet.cpp
+    qttelnet.cpp \
+    dialogeditbat_name.cpp \
+    bat_name.cpp
 
 HEADERS  += mainwindow.h \
-    qttelnet.h
+    qttelnet.h \
+    dialogeditbat_name.h \
+    bat_name.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    dialogeditbat_name.ui

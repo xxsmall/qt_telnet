@@ -6,6 +6,15 @@
 #include  <QDebug>
 #include  <QDateTime>
 #include  <QScrollBar>
+#include  <QMenu>
+
+
+
+#include  "bat_name.h"
+#include  "dialogeditbat_name.h"
+
+
+
 
 namespace Ui {
 class MainWindow;
@@ -18,6 +27,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+     QMenu               *menu;        //
+     QList<Bat_Name>     batNameList;  //
+     QAction             *batNameAction; //
+
+     bool batNameListSizeIsChanging = false;
+
 
 private slots:
     void on_pushButton_run_clicked();
@@ -39,9 +55,14 @@ private slots:
 
     void lineReturnPressed();
 
+    void showBatNameUi();
+
+    void updateBatNameList(QList<Bat_Name> editList);
+
 private:
     Ui::MainWindow *ui;
     QtTelnet *t;
+    DialogEditBat_Name *batNameUi;
 };
 
 #endif // MAINWINDOW_H
