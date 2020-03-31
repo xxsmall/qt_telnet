@@ -12,6 +12,7 @@
 
 #include  "bat_name.h"
 #include  "dialogeditbat_name.h"
+#include  "trigger.h"
 
 
 
@@ -31,8 +32,11 @@ public:
      QMenu               *menu;        //
      QList<Bat_Name>     batNameList;  //
      QAction             *batNameAction; //
+     QList<Trigger>       triggerList; //
 
      bool batNameListSizeIsChanging = false;
+signals:
+    void  processMsg(QString);
 
 
 private slots:
@@ -58,6 +62,10 @@ private slots:
     void showBatNameUi();
 
     void updateBatNameList(QList<Bat_Name> editList);
+
+    void  sendQStringList(QStringList list);
+
+    void  triggerProcess(QString telNetMsg);
 
 private:
     Ui::MainWindow *ui;

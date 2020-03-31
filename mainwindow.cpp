@@ -39,10 +39,29 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(batNameUi,SIGNAL(batNameListChanged(QList<Bat_Name>)),
             this, SLOT(updateBatNameList(QList<Bat_Name>)));
 
+    connect(this, SIGNAL(processMsg(QString)), this, SLOT(triggerProcess(QString)));  //关联槽
+
+
     Bat_Name a1;
     a1.nameBat = "a1";
-    a1.cmdList =  "look;hp;sc";
+    a1.cmdList =  "i;hp;sc";
     batNameList.append(a1);
+
+    Trigger t2;
+    t2.telNetMsg = "要注册新人物请输入new";
+    t2.cmdList = "xxsmall";
+    triggerList.append(t2);
+
+    Trigger t3;
+    t3.telNetMsg = "此ID档案已存在";
+    t3.cmdList = "2222qqqq";
+    triggerList.append(t3);
+
+    Trigger t4;
+    t4.telNetMsg = "一家价钱低廉的客栈，生意非常兴隆。外地游客多选择这里落脚";
+    t4.cmdList = "a1";
+    triggerList.append(t4);
+
 
 }
 
@@ -112,13 +131,17 @@ void MainWindow::telnetConnectionError(QAbstractSocket::SocketError error)
 
 void MainWindow::telnetMessage(const QString &msg)
 {
-    ui->textEdit->append(stripCR(msg));
+    QString telNetString = stripCR(msg);
+    ui->textEdit->append(telNetString);
     QScrollBar *s = ui->textEdit->verticalScrollBar();
     s->setValue(s->maximum());
 
     qDebug()<<"++++++++++++++++";
-    qDebug()<<stripCR(msg);
+    qDebug()<<telNetString;
     qDebug()<<"----------------";
+
+    emit processMsg(telNetString);
+
 }
 
 QString MainWindow::stripCR(const QString &msg)
@@ -201,4 +224,38 @@ void  MainWindow::sendQStringList(QStringList list)
         }
     }
 
+}
+
+void MainWindow::triggerProcess(QString telNetMsg)
+{
+     qDebug()<<"TTTTTT   "<<telNetMsg;
+     for(int i=0;i<triggerList.size();i++)
+     {
+         QString triggerHere = triggerList[i].telNetMsg;
+         QString cmd = triggerList[i].cmdList;
+         if(telNetMsg.contains(triggerHere))
+         {
+             bool find_in_batName  = false;
+             for(int j=0;j<batNameList.size();j++)
+             {
+                 QString batHere = batNameList[j].nameBat;
+                 if(batHere == cmd)
+                 {
+                     find_in_batName = true;
+                     QStringList  needSendList =  batNameList[j].cmdList.split(";");
+                     sendQStringList(needSendList);
+                     break ;
+                 }
+             }
+
+             if(find_in_batName)
+             {
+                 qDebug()<<"find bat name and send cmd !";
+             }else
+             {
+
+                 sendQStringList(cmd.split(";"));
+             }
+         }
+     }
 }
