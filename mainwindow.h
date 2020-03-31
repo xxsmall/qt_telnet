@@ -1,6 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+/*
+ * 这是根据自己兴趣编写的mud客户端，感兴趣的可以自己修改。
+ *
+ * 作者：  xxsmall@163.com
+ *
+ * 时间： 2020-03-31
+ */
 #include <QMainWindow>
 #include  <qttelnet.h>
 #include  <QDebug>

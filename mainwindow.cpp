@@ -47,15 +47,15 @@ MainWindow::MainWindow(QWidget *parent) :
     a1.cmdList =  "i;hp;sc";
     batNameList.append(a1);
 
-    Trigger t2;
-    t2.telNetMsg = "要注册新人物请输入new";
-    t2.cmdList = "xxsmall";
-    triggerList.append(t2);
+//    Trigger t2;
+//    t2.telNetMsg = "要注册新人物请输入new";
+//    t2.cmdList = "xxsmall";
+//    triggerList.append(t2);
 
-    Trigger t3;
-    t3.telNetMsg = "此ID档案已存在";
-    t3.cmdList = "2222qqqq";
-    triggerList.append(t3);
+//    Trigger t3;
+//    t3.telNetMsg = "此ID档案已存在";
+//    t3.cmdList = "2222qqqq";
+//    triggerList.append(t3);
 
     Trigger t4;
     t4.telNetMsg = "一家价钱低廉的客栈，生意非常兴隆。外地游客多选择这里落脚";
@@ -229,33 +229,43 @@ void  MainWindow::sendQStringList(QStringList list)
 void MainWindow::triggerProcess(QString telNetMsg)
 {
      qDebug()<<"TTTTTT   "<<telNetMsg;
-     for(int i=0;i<triggerList.size();i++)
+
+     QStringList telInfoList = telNetMsg.trimmed().split("\n");
+     //将telnet发来的多行信息，进行分行处理
+     for(int m=0;m<telInfoList.size();m++)
      {
-         QString triggerHere = triggerList[i].telNetMsg;
-         QString cmd = triggerList[i].cmdList;
-         if(telNetMsg.contains(triggerHere))
+         QString telInfoCurrentLine = telInfoList[m];
+         telInfoCurrentLine = telInfoCurrentLine.trimmed();
+
+         for(int i=0;i<triggerList.size();i++)
          {
-             bool find_in_batName  = false;
-             for(int j=0;j<batNameList.size();j++)
+             QString triggerHere = triggerList[i].telNetMsg;
+             QString cmd = triggerList[i].cmdList;
+             if(telInfoCurrentLine.contains(triggerHere))//触发器目前是包含逻辑
              {
-                 QString batHere = batNameList[j].nameBat;
-                 if(batHere == cmd)
+                 bool find_in_batName  = false;
+                 for(int j=0;j<batNameList.size();j++)
                  {
-                     find_in_batName = true;
-                     QStringList  needSendList =  batNameList[j].cmdList.split(";");
-                     sendQStringList(needSendList);
-                     break ;
+                     QString batHere = batNameList[j].nameBat;
+                     if(batHere == cmd) //判断当前要发的指令在别名队列中时的处理
+                     {
+                         find_in_batName = true;
+                         QStringList  needSendList =  batNameList[j].cmdList.split(";");
+                         sendQStringList(needSendList);
+                         break ;
+                     }
                  }
-             }
 
-             if(find_in_batName)
-             {
-                 qDebug()<<"find bat name and send cmd !";
-             }else
-             {
-
-                 sendQStringList(cmd.split(";"));
+                 if(find_in_batName)
+                 {
+                     qDebug()<<"find bat name and send cmd !";
+                 }else
+                 {
+                     //触发器指令 不在别名队列中 的 处理
+                     sendQStringList(cmd.split(";"));
+                 }
              }
          }
      }
+
 }
