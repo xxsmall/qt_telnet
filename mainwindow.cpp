@@ -33,14 +33,23 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(batNameAction);
     connect(batNameAction, SIGNAL(triggered()), this, SLOT(showBatNameUi()));  //关联槽
 
+    triggEditAction = new QAction("触发器",this);
+    menu->addAction(triggEditAction);
+    connect(triggEditAction, SIGNAL(triggered()), this, SLOT(showEditTriggerUi()));  //关联槽
+
+
 
     batNameUi = new  DialogEditBat_Name();
 
     connect(batNameUi,SIGNAL(batNameListChanged(QList<Bat_Name>)),
             this, SLOT(updateBatNameList(QList<Bat_Name>)));
 
-    connect(this, SIGNAL(processMsg(QString)), this, SLOT(triggerProcess(QString)));  //关联槽
+    connect(this, SIGNAL(processMsg(QString)), this, SLOT(triggerProcess(QString)));  //关联处理触发器槽
 
+    triggerUi = new DialogTrigger();
+
+    connect(triggerUi,SIGNAL(triggerListChanged(QList<Trigger>)),
+            this, SLOT(updateTriggerList(QList<Trigger>)));
 
     Bat_Name a1;
     a1.nameBat = "a1";
@@ -60,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Trigger t4;
     t4.telNetMsg = "一家价钱低廉的客栈，生意非常兴隆。外地游客多选择这里落脚";
     t4.cmdList = "a1";
+    t4.enable = true;
     triggerList.append(t4);
 
 
@@ -229,6 +239,11 @@ void  MainWindow::sendQStringList(QStringList list)
 void MainWindow::triggerProcess(QString telNetMsg)
 {
      qDebug()<<"TTTTTT   "<<telNetMsg;
+     if(triggerListSizeIsChanging)
+     {   //编辑好的触发器赋值给mainWindow中的触发器列表时，不进行触发器的匹配
+         //否则，会因触发器大小不一致而导致指针越界，程序崩溃
+         return ;
+     }
 
      QStringList telInfoList = telNetMsg.trimmed().split("\n");
      //将telnet发来的多行信息，进行分行处理
@@ -241,7 +256,8 @@ void MainWindow::triggerProcess(QString telNetMsg)
          {
              QString triggerHere = triggerList[i].telNetMsg;
              QString cmd = triggerList[i].cmdList;
-             if(telInfoCurrentLine.contains(triggerHere))//触发器目前是包含逻辑
+             bool enable = triggerList[i].enable;
+             if(telInfoCurrentLine.contains(triggerHere) && enable)//触发器目前是包含逻辑
              {
                  bool find_in_batName  = false;
                  for(int j=0;j<batNameList.size();j++)
@@ -267,5 +283,23 @@ void MainWindow::triggerProcess(QString telNetMsg)
              }
          }
      }
+
+}
+
+void MainWindow::showEditTriggerUi()
+{
+
+    triggerUi->triggerEditList  = this->triggerList;
+    triggerUi->updateTableData();
+    triggerUi->show();
+}
+
+void MainWindow::updateTriggerList(QList<Trigger> editList)
+{
+    triggerListSizeIsChanging = true;
+
+    this->triggerList = editList;
+
+     triggerListSizeIsChanging = false;
 
 }

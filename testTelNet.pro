@@ -23,13 +23,16 @@ SOURCES += main.cpp\
     qttelnet.cpp \
     dialogeditbat_name.cpp \
     bat_name.cpp \
-    trigger.cpp
+    trigger.cpp \
+    dialogtrigger.cpp
 
 HEADERS  += mainwindow.h \
     qttelnet.h \
     dialogeditbat_name.h \
     bat_name.h \
-    trigger.h
+    trigger.h \
+    dialogtrigger.h
 
 FORMS    += mainwindow.ui \
-    dialogeditbat_name.ui
+    dialogeditbat_name.ui \
+    dialogtrigger.ui

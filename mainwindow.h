@@ -19,6 +19,7 @@
 #include  "bat_name.h"
 #include  "dialogeditbat_name.h"
 #include  "trigger.h"
+#include  "dialogtrigger.h"
 
 
 
@@ -40,7 +41,10 @@ public:
      QAction             *batNameAction; //
      QList<Trigger>       triggerList; //
 
+     QAction             *triggEditAction;//
+
      bool batNameListSizeIsChanging = false;
+     bool triggerListSizeIsChanging = false;
 signals:
     void  processMsg(QString);
 
@@ -69,14 +73,18 @@ private slots:
 
     void updateBatNameList(QList<Bat_Name> editList);
 
-    void  sendQStringList(QStringList list);
+    void  sendQStringList(QStringList list);  //telnet send cmd list
 
-    void  triggerProcess(QString telNetMsg);
+    void  triggerProcess(QString telNetMsg);  // process trigger
 
+    void showEditTriggerUi();
+
+    void  updateTriggerList(QList<Trigger> editList);
 private:
     Ui::MainWindow *ui;
     QtTelnet *t;
     DialogEditBat_Name *batNameUi;
+    DialogTrigger      *triggerUi;
 };
 
 #endif // MAINWINDOW_H
