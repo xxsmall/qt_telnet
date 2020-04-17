@@ -13,6 +13,7 @@
 #include  <QDateTime>
 #include  <QScrollBar>
 #include  <QMenu>
+#include  <QTimer>
 
 
 
@@ -20,7 +21,7 @@
 #include  "dialogeditbat_name.h"
 #include  "trigger.h"
 #include  "dialogtrigger.h"
-
+#include  "dialogtimer.h"
 
 
 
@@ -43,11 +44,27 @@ public:
 
      QAction             *triggEditAction;//
 
+     QAction             *timerEditAction;//
+
      bool batNameListSizeIsChanging = false;
      bool triggerListSizeIsChanging = false;
+
+     QTimer   *timer1;
+     int       timer1_Max;
+     int       timer1_CountValue;
+     bool      timer1_enable;
+
+
+     QTimer   *timer2;
+     int       timer2_Max;
+     int       timer2_CountValue;
+     bool      timer2_enable;
+
+
 signals:
     void  processMsg(QString);
-
+    void  sendTimer1_count(int);
+    void  sendTimer2_count(int);
 
 private slots:
     void on_pushButton_run_clicked();
@@ -80,11 +97,23 @@ private slots:
     void showEditTriggerUi();
 
     void  updateTriggerList(QList<Trigger> editList);
+
+    void  timer1_TimeOut();
+
+    void  timer2_TimeOut();
+
+    void  showEditTimerUi();
+
+    void  recvTime1_enable(bool enable);
+    void  recvTime2_enable(bool enable);
+    void  recvTime1_Max(int max);
+    void  recvTime2_Max(int max);
 private:
     Ui::MainWindow *ui;
     QtTelnet *t;
     DialogEditBat_Name *batNameUi;
     DialogTrigger      *triggerUi;
+    DialogTimer        *timerUi;
 };
 
 #endif // MAINWINDOW_H

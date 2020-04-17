@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     t = new QtTelnet(nullptr);
     ui->textEdit->setReadOnly(true);
 
+    timerUi = new DialogTimer(this);
+
     connect(t, SIGNAL(loggedIn()),
             this, SLOT(telnetLoggedIn()));
 
@@ -37,6 +39,9 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(triggEditAction);
     connect(triggEditAction, SIGNAL(triggered()), this, SLOT(showEditTriggerUi()));  //关联槽
 
+    timerEditAction = new QAction("定时器",this);
+    menu->addAction(timerEditAction);
+    connect(timerEditAction, SIGNAL(triggered()), this, SLOT(showEditTimerUi()));  //关联槽
 
 
     batNameUi = new  DialogEditBat_Name();
@@ -50,6 +55,44 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(triggerUi,SIGNAL(triggerListChanged(QList<Trigger>)),
             this, SLOT(updateTriggerList(QList<Trigger>)));
+
+    connect(this,SIGNAL(sendTimer1_count(int)),
+            timerUi, SLOT(recvTimer1_cout(int)));
+
+    connect(this,SIGNAL(sendTimer2_count(int)),
+            timerUi, SLOT(recvTimer2_cout(int)));
+
+
+    connect(timerUi,SIGNAL(timer1_EnableChange(bool)),
+            this, SLOT(recvTime1_enable(bool)));
+
+    connect(timerUi,SIGNAL(timer2_EnableChange(bool)),
+            this, SLOT(recvTime2_enable(bool)));
+
+    connect(timerUi,SIGNAL( timer1_MaxChange(int)),
+            this, SLOT(recvTime1_Max(int)));
+
+    connect(timerUi,SIGNAL( timer2_MaxChange(int)),
+            this, SLOT(recvTime2_Max(int)));
+
+    timer1 = new QTimer(this);
+    connect(timer1, SIGNAL(timeout()), this, SLOT(timer1_TimeOut()));
+    timer1->start(1000); //1000 ms
+    timer1_Max =66;
+    timer1_CountValue = 60;
+    timer1_enable = false;
+
+    timer2 = new QTimer(this);
+    connect(timer2, SIGNAL(timeout()), this, SLOT(timer2_TimeOut()));
+    timer2->start(1000); //1000 ms
+    timer2_Max =66;
+    timer2_CountValue = 60;
+    timer2_enable = false;
+
+    timerUi->setTimer1_Max(timer1_Max,timer1_enable);
+    timerUi->setTimer2_Max(timer2_Max,timer2_enable);
+
+
 
     Bat_Name a1;
     a1.nameBat = "a1";
@@ -77,6 +120,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    timer1->stop();
+    delete timer1;
+    timer1 = NULL;
+
+    timer2->stop();
+    delete timer2;
+    timer2 = NULL;
+
     delete ui;
 }
 
@@ -302,4 +353,94 @@ void MainWindow::updateTriggerList(QList<Trigger> editList)
 
      triggerListSizeIsChanging = false;
 
+}
+
+void MainWindow:: timer1_TimeOut()
+{
+    qDebug()<<"timer 1 runing";
+    if(timer1_enable)
+    {
+        if(timer1_CountValue <0)
+        {
+            timer1_CountValue = timer1_Max;
+        }
+
+        if(timer1_CountValue > timer1_Max)
+        {
+            timer1_CountValue = 0;
+        }
+
+        timer1_CountValue = timer1_CountValue - 1;
+
+        if(timer1_CountValue <0)
+        {
+            timer1_CountValue = timer1_Max;
+        }
+
+        if(timer1_CountValue > timer1_Max)
+        {
+            timer1_CountValue = 0;
+        }
+
+        emit sendTimer1_count(timer1_CountValue);
+
+    }
+
+}
+
+void MainWindow:: timer2_TimeOut()
+{
+    qDebug()<<"timer 2 runing";
+    if(timer2_enable)
+    {
+        if(timer2_CountValue <0)
+        {
+            timer2_CountValue = timer2_Max;
+        }
+
+        if(timer2_CountValue > timer2_Max)
+        {
+            timer2_CountValue = 0;
+        }
+
+        timer2_CountValue = timer2_CountValue - 1;
+
+        if(timer2_CountValue <0)
+        {
+            timer2_CountValue = timer2_Max;
+        }
+
+        if(timer2_CountValue > timer2_Max)
+        {
+            timer2_CountValue = 0;
+        }
+
+        emit sendTimer2_count(timer2_CountValue);
+
+    }
+}
+
+void  MainWindow::showEditTimerUi()
+{
+    timerUi->show();
+}
+
+void  MainWindow::recvTime1_enable(bool enable)
+{
+     timer1_enable = enable;
+}
+
+void  MainWindow::recvTime2_enable(bool enable)
+{
+
+    timer2_enable = enable;
+}
+
+void   MainWindow::recvTime1_Max(int max)
+{
+    timer1_Max = max;
+}
+void   MainWindow::recvTime2_Max(int max)
+{
+     timer2_Max = max;
 }
