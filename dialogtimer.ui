@@ -22,6 +22,9 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="text">
+    <string>du yi jing for 2</string>
+   </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -121,6 +124,9 @@
      <width>411</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="text">
+    <string>eat ganliang;drink jiudai;dazuo 30</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">

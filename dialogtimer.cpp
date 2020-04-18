@@ -96,3 +96,17 @@ void DialogTimer::on_spinBox_2_valueChanged(int arg1)
     emit timer2_MaxChange(timer2_Max);
 
 }
+
+void DialogTimer::on_lineEdit_textChanged(const QString &arg1)
+{
+    QString cmd = arg1;
+    emit timer1_CmdChange(cmd);
+    qDebug()<<cmd;
+}
+
+void DialogTimer::on_lineEdit_2_textChanged(const QString &arg1)
+{
+    QString cmd = arg1;
+    emit timer2_CmdChange(cmd);
+    qDebug()<<cmd;
+}

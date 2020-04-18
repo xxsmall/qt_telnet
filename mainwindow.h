@@ -14,8 +14,12 @@
 #include  <QScrollBar>
 #include  <QMenu>
 #include  <QTimer>
+#include  <QPixmap>
 
-
+#include <QNetworkAccessManager>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QHttpMultiPart>
 
 #include  "bat_name.h"
 #include  "dialogeditbat_name.h"
@@ -46,6 +50,8 @@ public:
 
      QAction             *timerEditAction;//
 
+     QAction            *httpAction;
+
      bool batNameListSizeIsChanging = false;
      bool triggerListSizeIsChanging = false;
 
@@ -53,14 +59,18 @@ public:
      int       timer1_Max;
      int       timer1_CountValue;
      bool      timer1_enable;
+     QString   timer1_cmd;
 
 
      QTimer   *timer2;
      int       timer2_Max;
      int       timer2_CountValue;
      bool      timer2_enable;
+     QString   timer2_cmd;
 
+     QNetworkAccessManager *accessManager;
 
+     QString  httpUrl2;
 signals:
     void  processMsg(QString);
     void  sendTimer1_count(int);
@@ -108,6 +118,14 @@ private slots:
     void  recvTime2_enable(bool enable);
     void  recvTime1_Max(int max);
     void  recvTime2_Max(int max);
+    void  recvTime1_cmd(QString cmd);
+    void  recvTime2_cmd(QString cmd);
+
+    void  processTimerCMD_send(QString cmdList);
+
+    void finishedSlot(QNetworkReply *reply);
+
+    void  httpTest();
 private:
     Ui::MainWindow *ui;
     QtTelnet *t;

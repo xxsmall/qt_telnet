@@ -30,6 +30,9 @@ signals:
     void  timer2_MaxChange(int);
     void  timer1_EnableChange(bool);
     void  timer2_EnableChange(bool);
+    void  timer1_CmdChange(QString);
+    void  timer2_CmdChange(QString);
+
 public slots:
     void      recvTimer1_cout(int count);
     void      recvTimer2_cout(int count);
@@ -43,6 +46,10 @@ private slots:
     void on_spinBox_valueChanged(int arg1);
 
     void on_spinBox_2_valueChanged(int arg1);
+
+    void on_lineEdit_textChanged(const QString &arg1);
+
+    void on_lineEdit_2_textChanged(const QString &arg1);
 
 private:
     Ui::DialogTimer *ui;

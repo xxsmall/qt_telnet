@@ -43,6 +43,10 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(timerEditAction);
     connect(timerEditAction, SIGNAL(triggered()), this, SLOT(showEditTimerUi()));  //关联槽
 
+    httpAction = new QAction("http test",this);
+    menu->addAction(httpAction);
+    connect(httpAction, SIGNAL(triggered()), this, SLOT(httpTest()));  //关联槽
+
 
     batNameUi = new  DialogEditBat_Name();
 
@@ -75,6 +79,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timerUi,SIGNAL( timer2_MaxChange(int)),
             this, SLOT(recvTime2_Max(int)));
 
+    connect(timerUi,SIGNAL( timer1_CmdChange(QString)),
+            this, SLOT( recvTime1_cmd(QString)));
+
+    connect(timerUi,SIGNAL( timer2_CmdChange(QString)),
+            this, SLOT( recvTime2_cmd(QString)));
+
     timer1 = new QTimer(this);
     connect(timer1, SIGNAL(timeout()), this, SLOT(timer1_TimeOut()));
     timer1->start(1000); //1000 ms
@@ -92,22 +102,25 @@ MainWindow::MainWindow(QWidget *parent) :
     timerUi->setTimer1_Max(timer1_Max,timer1_enable);
     timerUi->setTimer2_Max(timer2_Max,timer2_enable);
 
-
+    accessManager = new QNetworkAccessManager(this);
+    connect(accessManager, SIGNAL(finished(QNetworkReply*)), this, SLOT(finishedSlot(QNetworkReply*)));
 
     Bat_Name a1;
     a1.nameBat = "a1";
     a1.cmdList =  "i;hp;sc";
     batNameList.append(a1);
 
-//    Trigger t2;
-//    t2.telNetMsg = "要注册新人物请输入new";
-//    t2.cmdList = "xxsmall";
-//    triggerList.append(t2);
+    Trigger t2;
+    t2.telNetMsg = "要注册新人物请输入new";
+    t2.cmdList = "xxsmall";
+    t2.enable = true;
+    triggerList.append(t2);
 
-//    Trigger t3;
-//    t3.telNetMsg = "此ID档案已存在";
-//    t3.cmdList = "2222qqqq";
-//    triggerList.append(t3);
+    Trigger t3;
+    t3.telNetMsg = "此ID档案已存在";
+    t3.cmdList = "2222qqqq";
+    t3.enable = true;
+    triggerList.append(t3);
 
     Trigger t4;
     t4.telNetMsg = "一家价钱低廉的客栈，生意非常兴隆。外地游客多选择这里落脚";
@@ -115,6 +128,8 @@ MainWindow::MainWindow(QWidget *parent) :
     t4.enable = true;
     triggerList.append(t4);
 
+    QPixmap pixmap("1.jpg");
+    ui->label_http->setPixmap(pixmap);
 
 }
 
@@ -197,9 +212,9 @@ void MainWindow::telnetMessage(const QString &msg)
     QScrollBar *s = ui->textEdit->verticalScrollBar();
     s->setValue(s->maximum());
 
-    qDebug()<<"++++++++++++++++";
-    qDebug()<<telNetString;
-    qDebug()<<"----------------";
+//    qDebug()<<"++++++++++++++++";
+//    qDebug()<<telNetString;
+//    qDebug()<<"----------------";
 
     emit processMsg(telNetString);
 
@@ -217,7 +232,6 @@ QString MainWindow::stripCR(const QString &msg)
 void MainWindow::lineReturnPressed()
 {
     QString str = ui->lineEdit_input->text();
-   // t->sendData(str+QString("\r\n"));
 
     bool find_bat_name = false;
 
@@ -289,7 +303,7 @@ void  MainWindow::sendQStringList(QStringList list)
 
 void MainWindow::triggerProcess(QString telNetMsg)
 {
-     qDebug()<<"TTTTTT   "<<telNetMsg;
+    // qDebug()<<"TTTTTT   "<<telNetMsg;
      if(triggerListSizeIsChanging)
      {   //编辑好的触发器赋值给mainWindow中的触发器列表时，不进行触发器的匹配
          //否则，会因触发器大小不一致而导致指针越界，程序崩溃
@@ -302,6 +316,12 @@ void MainWindow::triggerProcess(QString telNetMsg)
      {
          QString telInfoCurrentLine = telInfoList[m];
          telInfoCurrentLine = telInfoCurrentLine.trimmed();
+         if(telInfoCurrentLine.contains("http://pkuxkx.com/antirobot/robot.php"))
+         {
+             int pos = telInfoCurrentLine.indexOf("http://pkuxkx.com/antirobot/robot.php");
+             httpUrl2 = telInfoCurrentLine.right(telInfoCurrentLine.length()-pos);
+             ui->label_http->setText(httpUrl2);
+         }
 
          for(int i=0;i<triggerList.size();i++)
          {
@@ -357,11 +377,12 @@ void MainWindow::updateTriggerList(QList<Trigger> editList)
 
 void MainWindow:: timer1_TimeOut()
 {
-    qDebug()<<"timer 1 runing";
+   // qDebug()<<"timer 1 runing";
     if(timer1_enable)
     {
-        if(timer1_CountValue <0)
+        if(timer1_CountValue <=0)
         {
+            processTimerCMD_send(timer1_cmd);
             timer1_CountValue = timer1_Max;
         }
 
@@ -390,11 +411,12 @@ void MainWindow:: timer1_TimeOut()
 
 void MainWindow:: timer2_TimeOut()
 {
-    qDebug()<<"timer 2 runing";
+    //qDebug()<<"timer 2 runing";
     if(timer2_enable)
     {
-        if(timer2_CountValue <0)
+        if(timer2_CountValue <=0)
         {
+            processTimerCMD_send(timer2_cmd);
             timer2_CountValue = timer2_Max;
         }
 
@@ -443,4 +465,82 @@ void   MainWindow::recvTime1_Max(int max)
 void   MainWindow::recvTime2_Max(int max)
 {
      timer2_Max = max;
+}
+
+void  MainWindow::processTimerCMD_send(QString cmdList)
+{
+    //分割定时器指令队列，以单个指令发送
+    QStringList list = cmdList.split(";");
+    for(int i=0;i<list.size();i++)
+    {
+        QString cmd = list[i];
+        bool find_in_batName  = false;
+
+        for(int j=0;j<batNameList.size();j++)
+        {
+            QString batHere = batNameList[j].nameBat;
+            if(batHere == cmd) //判断当前要发的指令在别名队列中时的处理
+            {
+                find_in_batName = true;
+                QStringList  needSendList =  batNameList[j].cmdList.split(";");
+                sendQStringList(needSendList);
+                break ;
+            }
+        }
+
+        if(find_in_batName)
+        {
+            qDebug()<<"find bat name and send cmd !";
+        }else
+        {
+            //定时器指令 不在别名队列中 的 处理
+            if(t)
+            {
+                t->sendData(cmd + QString("\r\n"));
+            }else
+            {
+                qDebug()<<"telnet ptr is NULL ! give up send CMD !";
+            }
+        }
+    }
+}
+
+void  MainWindow::recvTime1_cmd(QString cmd)
+{
+    timer1_cmd = cmd;
+}
+
+void  MainWindow::recvTime2_cmd(QString cmd)
+{
+    timer2_cmd = cmd;
+}
+
+void MainWindow::finishedSlot(QNetworkReply *reply)
+{
+
+   if (reply->error() == QNetworkReply::NoError)
+   {
+        QByteArray bytes = reply->readAll();
+        QString value = bytes;
+        qDebug()<<value;
+
+   }
+   reply->deleteLater();
+
+}
+
+void MainWindow::httpTest()
+{
+
+      QNetworkRequest request;
+      QString ip = "http://pkuxkx.com/antirobot/robot.php?filename=1587117811594715";
+
+      QString str1= "line1";
+      QString str2= "line2";
+
+      request.setUrl(QUrl(ip));
+      request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+      //post
+      QNetworkReply* reply = accessManager->get(request);
 }
