@@ -43,9 +43,18 @@ MainWindow::MainWindow(QWidget *parent) :
     menu->addAction(timerEditAction);
     connect(timerEditAction, SIGNAL(triggered()), this, SLOT(showEditTimerUi()));  //关联槽
 
+    editVarAction = new QAction("变量",this);
+    menu->addAction(editVarAction);
+    connect(editVarAction, SIGNAL(triggered()), this, SLOT(showVarUi()));  //关联槽
+
+
     httpAction = new QAction("http test",this);
     menu->addAction(httpAction);
     connect(httpAction, SIGNAL(triggered()), this, SLOT(httpTest()));  //关联槽
+
+    varUi = new DialogEditVar();
+    connect(varUi,SIGNAL(varListChanged(QList<UserVar>)),
+            this,SLOT(updateVarList(QList<UserVar>)));
 
 
     batNameUi = new  DialogEditBat_Name();
@@ -112,7 +121,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     Trigger t2;
     t2.telNetMsg = "要注册新人物请输入new";
-    t2.cmdList = "xxsmall";
+    t2.cmdList = "xxsmalltwo";
     t2.enable = true;
     triggerList.append(t2);
 
@@ -130,6 +139,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QPixmap pixmap("1.jpg");
     ui->label_http->setPixmap(pixmap);
+
+    UserVar v1;
+    v1.varName = "bookName";
+    v1.varType = "string";
+    v1.varValue = "三国演义";
+    userVarList.append(v1);
 
 }
 
@@ -208,8 +223,14 @@ void MainWindow::telnetConnectionError(QAbstractSocket::SocketError error)
 void MainWindow::telnetMessage(const QString &msg)
 {
     QString telNetString = stripCR(msg);
+
+
     ui->textEdit->append(telNetString);
     QScrollBar *s = ui->textEdit->verticalScrollBar();
+    if(s->size().height() > 2000)
+    {
+        ui->textEdit->clear();
+    }
     s->setValue(s->maximum());
 
 //    qDebug()<<"++++++++++++++++";
@@ -284,6 +305,12 @@ void MainWindow::updateBatNameList(QList<Bat_Name> editList)
 
 }
 
+void MainWindow::updateVarList(QList<UserVar> varList)
+{
+    varListIsChanging = true;
+    userVarList = varList;
+    varListIsChanging = false;
+}
 void  MainWindow::sendQStringList(QStringList list)
 {
     for(int i=0;i<list.size();i++)
@@ -447,6 +474,13 @@ void  MainWindow::showEditTimerUi()
     timerUi->show();
 }
 
+void  MainWindow::showVarUi()
+{
+    varUi->varList = userVarList;
+    varUi->updateTableData();
+    varUi->show();
+}
+
 void  MainWindow::recvTime1_enable(bool enable)
 {
      timer1_enable = enable;
@@ -543,4 +577,17 @@ void MainWindow::httpTest()
 
       //post
       QNetworkReply* reply = accessManager->get(request);
+}
+
+void MainWindow::on_pushButton_font_clicked()
+{
+        bool ok;
+        QFont font = QFontDialog::getFont( &ok, QFont( "Times", 12 ), this );
+        if ( ok ) {
+            // font被设置为用户选择的字体
+            ui->textEdit->setFont(font);
+        } else {
+            // 用户取消这个对话框，font被设置为初始值，在这里就是Times, 12
+        }
+
 }

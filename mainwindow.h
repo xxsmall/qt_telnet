@@ -20,13 +20,16 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QHttpMultiPart>
+#include <QFileDialog>
+#include <QFontDialog>
 
 #include  "bat_name.h"
 #include  "dialogeditbat_name.h"
 #include  "trigger.h"
 #include  "dialogtrigger.h"
 #include  "dialogtimer.h"
-
+#include  "uservar.h"
+#include  "dialogeditvar.h"
 
 
 namespace Ui {
@@ -42,16 +45,20 @@ public:
     ~MainWindow();
 
      QMenu               *menu;        //
-     QList<Bat_Name>     batNameList;  //
+     QList<Bat_Name>      batNameList;  //
      QAction             *batNameAction; //
+     QAction             *editVarAction; //
      QList<Trigger>       triggerList; //
 
      QAction             *triggEditAction;//
 
      QAction             *timerEditAction;//
 
-     QAction            *httpAction;
+     QAction             *httpAction;
 
+     QList<UserVar>       userVarList; //用户变量列表
+
+     bool varListIsChanging = false;
      bool batNameListSizeIsChanging = false;
      bool triggerListSizeIsChanging = false;
 
@@ -100,6 +107,8 @@ private slots:
 
     void updateBatNameList(QList<Bat_Name> editList);
 
+    void updateVarList(QList<UserVar> varList);
+
     void  sendQStringList(QStringList list);  //telnet send cmd list
 
     void  triggerProcess(QString telNetMsg);  // process trigger
@@ -114,6 +123,8 @@ private slots:
 
     void  showEditTimerUi();
 
+    void  showVarUi();
+
     void  recvTime1_enable(bool enable);
     void  recvTime2_enable(bool enable);
     void  recvTime1_Max(int max);
@@ -125,6 +136,8 @@ private slots:
 
     void finishedSlot(QNetworkReply *reply);
 
+    void on_pushButton_font_clicked();
+
     void  httpTest();
 private:
     Ui::MainWindow *ui;
@@ -132,6 +145,7 @@ private:
     DialogEditBat_Name *batNameUi;
     DialogTrigger      *triggerUi;
     DialogTimer        *timerUi;
+    DialogEditVar      *varUi;
 };
 
 #endif // MAINWINDOW_H

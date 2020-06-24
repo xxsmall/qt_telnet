@@ -25,7 +25,9 @@ SOURCES += main.cpp\
     bat_name.cpp \
     trigger.cpp \
     dialogtrigger.cpp \
-    dialogtimer.cpp
+    dialogtimer.cpp \
+    uservar.cpp \
+    dialogeditvar.cpp
 
 HEADERS  += mainwindow.h \
     qttelnet.h \
@@ -33,9 +35,12 @@ HEADERS  += mainwindow.h \
     bat_name.h \
     trigger.h \
     dialogtrigger.h \
-    dialogtimer.h
+    dialogtimer.h \
+    uservar.h \
+    dialogeditvar.h
 
 FORMS    += mainwindow.ui \
     dialogeditbat_name.ui \
     dialogtrigger.ui \
-    dialogtimer.ui
+    dialogtimer.ui \
+    dialogeditvar.ui
