@@ -78,6 +78,8 @@ public:
      QNetworkAccessManager *accessManager;
 
      QString  httpUrl2;
+
+     QList<QString> maxTxtList; //显示文本列表
 signals:
     void  processMsg(QString);
     void  sendTimer1_count(int);

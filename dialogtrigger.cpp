@@ -119,5 +119,6 @@ void DialogTrigger::on_pushButton_save_clicked()
         qDebug()<<"---------------------";
     }
 
+
     emit triggerListChanged(triggerEditList);
 }

@@ -23,7 +23,7 @@
       <item>
        <widget class="QLineEdit" name="lineEdit_host">
         <property name="text">
-         <string>mud.pkuxkx.com</string>
+         <string>pkuxkx.net</string>
         </property>
        </widget>
       </item>
