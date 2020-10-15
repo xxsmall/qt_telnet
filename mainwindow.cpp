@@ -129,6 +129,18 @@ MainWindow::MainWindow(QWidget *parent) :
     a3.cmdList =  "ask daoguo about cancel";
     batNameList.append(a3);
 
+    Bat_Name a4;
+    a4.nameBat = "hb";
+    a4.cmdList = "listesc";
+    batNameList.append(a4);
+
+    Bat_Name a5;
+    a5.nameBat = "jb";
+    a5.cmdList = "getesc";
+    batNameList.append(a5);
+
+
+
     Trigger t2;
     t2.telNetMsg = "要注册新人物请输入new";
     t2.cmdList = "xxsmalltwo";
@@ -152,6 +164,7 @@ MainWindow::MainWindow(QWidget *parent) :
     t5.cmdList = "bbbbbb";
     t5.enable = true;
     triggerList.append(t5);
+
 
     QPixmap pixmap("1.jpg");
     ui->label_http->setPixmap(pixmap);
