@@ -27,6 +27,7 @@ void DialogEditVar::setTableHeader()
 
     model->setHorizontalHeaderLabels(list);
     ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
     //ui->tableView_FileSelect->setColumnWidth(0,300);
 
 }

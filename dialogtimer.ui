@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>eat ganliang;drink jiudai;lingwu hand 8;get qiezi;drink hulu;eat dianxin;eat baicai;read tianlong 4;du shediao 4</string>
+    <string>eat ganliang;drink jiudai;lingwu hand 10;get qiezi;drink hulu;eat dianxin;eat baicai;lingwu leg 10;lian parry 8</string>
    </property>
   </widget>
   <widget class="QLabel" name="label">

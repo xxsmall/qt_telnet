@@ -23,6 +23,7 @@
 #include <QFileDialog>
 #include <QFontDialog>
 
+
 #include  "bat_name.h"
 #include  "dialogeditbat_name.h"
 #include  "trigger.h"
@@ -56,7 +57,8 @@ public:
 
      QAction             *httpAction;
 
-     QList<UserVar>       userVarList; //用户变量列表
+     QList<UserVar>       userVarList; //用户变量列表提取诗词
+     QList<QString>       poemList;
 
      bool varListIsChanging = false;
      bool batNameListSizeIsChanging = false;
@@ -80,6 +82,9 @@ public:
      QString  httpUrl2;
 
      QList<QString> maxTxtList; //显示文本列表
+
+     void writeFile(QList<QString> textList, QString fileName);
+     QList<QString>  readFile(QString fileName);
 signals:
     void  processMsg(QString);
     void  sendTimer1_count(int);
@@ -141,6 +146,8 @@ private slots:
     void on_pushButton_font_clicked();
 
     void  httpTest();
+    void on_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QtTelnet *t;
