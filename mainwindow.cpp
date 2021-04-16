@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QTextCodec>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     t = new QtTelnet(0);
     ui->textEdit->setReadOnly(true);
+    //QTextCodec::setCodecForLocale(QTextCodec::codecForName("GBK")); // 关键是这句
+    readFile("./poem.txt",havePoemList);
 
     timerUi = new DialogTimer(this);
 
@@ -413,46 +416,62 @@ void MainWindow::triggerProcess(QString telNetMsg)
      {
          QString telInfoCurrentLine = telInfoList[m];
          telInfoCurrentLine = telInfoCurrentLine.trimmed();
+
+         QString strKey1= "当前题目：　　　";
+         QString strKey2 = "茶博博士提笔在墙上写道：";
+         if(telInfoCurrentLine.contains(strKey1))
+         {
+              QString PoemLine = telInfoCurrentLine.replace(strKey1,"");
+              PoemLine = telInfoCurrentLine.replace(strKey2,"");
+
+              PoemLine = PoemLine.trimmed();
+              QString answer = getPoemAnswer(PoemLine);
+              ui->label_http->setText(PoemLine + "\r\n" + answer);
+
+              t->sendData("answer " + answer + QString("\r\n") );
+
+         }
+
          //
          //茶博士点头道：“闻道黄龙戍  频年不解兵”不错！不错！
-         QString strKey1= "茶博士点头道：";
-          QString strKey2= "不错！不错！";
-         if(telInfoCurrentLine.contains(strKey1) && telInfoCurrentLine.contains(strKey2))
-         {
-             QString answer = telInfoCurrentLine.replace(strKey1,"");
-             answer =  answer.replace(strKey2,"");
-             answer = answer.replace("“","");
-             answer = answer.replace("”","");
-             answer = answer.replace("  ","");
-             poemList.clear();
-             poemList = readFile("poem.txt");
-             int size = poemList.size();
-             bool find = false;
-             for(int i=0;i<size;i++)
-             {
-                 if(poemList.at(i) == answer)
-                 {
-                     find = true;
-                     break;
-                 }
-             }
+//          QString strKey1= "茶博士点头道：";
+//          QString strKey2= "不错！不错！";
+//         if(telInfoCurrentLine.contains(strKey1) && telInfoCurrentLine.contains(strKey2))
+//         {
+//             QString answer = telInfoCurrentLine.replace(strKey1,"");
+//             answer =  answer.replace(strKey2,"");
+//             answer = answer.replace("“","");
+//             answer = answer.replace("”","");
+//             answer = answer.replace("  ","");
+//             poemList.clear();
+//             readFile("poem.txt",poemList);
+//             int size = poemList.size();
+//             bool find = false;
+//             for(int i=0;i<size;i++)
+//             {
+//                 if(poemList.at(i) == answer)
+//                 {
+//                     find = true;
+//                     break;
+//                 }
+//             }
 
-             if(find)
-             {
+//             if(find)
+//             {
 
-             }else
-             {
-                  poemList.append(answer);
-                  int size2 = poemList.size();
-                  for(int i=0;i<size2;i++)
-                  {
-                      poemList[i] = poemList[i].trimmed() + "\r\n";
-                  }
-                  writeFile(poemList,"poem.txt");
-             }
+//             }else
+//             {
+//                  poemList.append(answer);
+//                  int size2 = poemList.size();
+//                  for(int i=0;i<size2;i++)
+//                  {
+//                      poemList[i] = poemList[i].trimmed() + "\r\n";
+//                  }
+//                  writeFile(poemList,"poem.txt");
+//             }
 
-             ui->label_http->setText(telInfoCurrentLine+"\r\n"+answer);
-         }
+            // ui->label_http->setText(telInfoCurrentLine+"\r\n"+answer);
+
 
          if(telInfoCurrentLine.contains("http://pkuxkx.com/antirobot/robot.php"))
          {
@@ -817,6 +836,85 @@ set public 1;finger 你的ID
 void MainWindow::on_pushButton_clicked()
 {
     maxTxtList.clear();
+
+   /*
+    QTextCodec *codec = QTextCodec::codecForName("GBK");
+
+    QString tt2 = "安能摧眉折腰事权贵使我不得开心颜";
+    QString str(tt2[1]);
+    const char *a = str.toStdString().data();
+    for(int i=0;i<havePoemList.size();i++)
+    {
+        QString tt;
+        tt = havePoemList[i];
+
+        qDebug() <<"tt = "<<tt;
+
+
+        // const char *b = str.toStdString().data();
+//         const char *c = tt.toStdString().data();
+      //   QString str = codec->toUnicode(tt.toUtf8());
+
+
+         qDebug()<<str;
+        if(tt.contains(str  )  )
+         {
+            qDebug()<<"find"<<i;
+         }
+    }
+
+
+    */
+
+         QString tt2 = "安能摧眉折腰事权贵使我不得开";
+
+         bool find = false;
+         QString answer = "";
+         int findPosition = 0;
+
+
+         QString word_1 = QString(tt2[0]);
+
+         for(int i=0;i<havePoemList.size();i++)
+         {
+              qDebug()<<havePoemList[i];
+              QString tt = havePoemList[i];
+               tt.toUtf8();
+              if(tt.contains(word_1))
+              {
+                  find = true;
+                  bool lineFind  = true;
+
+                  for(int j=0;j<tt2.size();j++)
+                  {
+                      QString word = QString(tt2[j]);
+
+                      if(tt.contains(word))
+                      {
+                          lineFind = true;
+                      }else
+                      {
+                          lineFind = false;
+
+                          break;
+                      }
+                  }
+
+                  if(lineFind)
+                  {
+                      answer = tt;
+                      findPosition = i;
+                      qDebug()<<answer<<findPosition;
+                      break;
+                  }
+
+              }else
+              {
+                  find = false;
+
+              }
+         }
+
 }
 
 void MainWindow::writeFile(QList<QString> textList, QString fileName)
@@ -858,9 +956,9 @@ void MainWindow::writeFile(QList<QString> textList, QString fileName)
 }
 
 
-QList<QString>  MainWindow::readFile(QString fileName)
+int MainWindow::readFile(QString fileName, QList<QString> &txt)
 {
-/*
+
     QFile file(fileName);
     QList<QString> dataList;
     dataList.clear();
@@ -872,9 +970,10 @@ QList<QString>  MainWindow::readFile(QString fileName)
 
     if(!file.open(QIODevice::ReadOnly))
     {
-         return dataList;
+         return -1;
     }
     QTextStream in(&file);
+    in.setCodec("UTF-8");
 
     int i=0;
     while(!in.atEnd())
@@ -889,9 +988,10 @@ QList<QString>  MainWindow::readFile(QString fileName)
         //qDebug() << i <<"  "<< onecount;
     }
     file.close();
-    return dataList;
-*/
+    txt = dataList;
+    return 1;
 
+/*
     QFile file(fileName);
     QList<QString> dataList;
     dataList.clear();
@@ -903,7 +1003,7 @@ QList<QString>  MainWindow::readFile(QString fileName)
 
     if(!file.open(QIODevice::ReadOnly))
     {
-         return dataList;
+         return -1;
     }
     QTextStream in(&file);
 
@@ -927,6 +1027,63 @@ QList<QString>  MainWindow::readFile(QString fileName)
         }
     }
     file.close();
-    return dataList2;
+    txt = dataList2;
+    return 1;
+    */
 
 }
+
+ QString MainWindow::getPoemAnswer(QString poemIn)
+ {
+    // QString tt2 = "安能摧眉折腰事权贵使我不得开";
+
+     QString tt2 = poemIn;
+     bool find = false;
+     QString answer = "";
+     int findPosition = 0;
+
+
+     QString word_1 = QString(tt2[0]);
+
+     for(int i=0;i<havePoemList.size();i++)
+     {
+         // qDebug()<<havePoemList[i];
+          QString tt = havePoemList[i];
+           tt.toUtf8();
+          if(tt.contains(word_1))
+          {
+              find = true;
+              bool lineFind  = true;
+
+              for(int j=0;j<tt2.size();j++)
+              {
+                  QString word = QString(tt2[j]);
+
+                  if(tt.contains(word))
+                  {
+                      lineFind = true;
+                  }else
+                  {
+                      lineFind = false;
+
+                      break;
+                  }
+              }
+
+              if(lineFind)
+              {
+                  answer = tt;
+                  findPosition = i;
+                  qDebug()<<answer<<findPosition;
+                  break;
+              }
+
+          }else
+          {
+              find = false;
+
+          }
+     }
+
+     return answer;
+ }

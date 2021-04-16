@@ -83,8 +83,15 @@ public:
 
      QList<QString> maxTxtList; //显示文本列表
 
+
      void writeFile(QList<QString> textList, QString fileName);
-     QList<QString>  readFile(QString fileName);
+     int  readFile(QString fileName,QList<QString> &txt);
+
+     QList<QString> havePoemList;//已有古诗句列表
+
+     QString getPoemAnswer(QString poemIn);
+
+
 signals:
     void  processMsg(QString);
     void  sendTimer1_count(int);
